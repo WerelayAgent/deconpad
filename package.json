@@ -1,0 +1,22 @@
+{
+  "name": "deconpad",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Deconpad · Reverse-engineer anything. AI agents take products apart, rebuild them your way, and launch them on Solana.",
+  "scripts": {
+    "start": "serve -s . -l 3000"
+  },
+  "keywords": [
+    "solana",
+    "decon",
+    "deconpad",
+    "deconstruct",
+    "launchpad",
+    "ai-agents",
+    "reverse-engineering",
+    "pumpfun",
+    "defi"
+  ],
+  "author": "WerelayAgent",
+  "license": "Apache-2.0"
+}
