@@ -485,7 +485,7 @@ h2{font-weight:800;font-size:clamp(40px,4.4vw,70px);line-height:1.02;letter-spac
 'use strict';
 // ------------------------------------------------------------------ config
 const CONFIG = {
-  CA: 'CZmdWuoGyweK17GqwxdBqnEzgxzrPbK8LdUYJj2RMwx9',                                   // $DECON mint, set at launch
+  CA: 'live now on pump.fun',                                     // $DECON mint or launch status
   DOMAIN: 'deconpad.fun',
   X: 'https://x.com/deconpad',                                    // project X link (build.py --x)
 };
@@ -495,7 +495,8 @@ const $ = (id) => document.getElementById(id);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const short = (a) => a ? a.slice(0, 4) + '…' + a.slice(-4) : '';
+const isMint = (a) => /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(String(a || '').trim());
+const short = (a) => a ? (isMint(a) ? a.slice(0, 4) + '…' + a.slice(-4) : a) : '';
 const IMG = (n) => (window.__IMG && window.__IMG[n]) || 'img/' + n;
 const store = { get(k, d) { try { const v = localStorage.getItem('decon.' + k); return v == null ? d : JSON.parse(v); } catch (_) { return d; } }, set(k, v) { try { localStorage.setItem('decon.' + k, JSON.stringify(v)); } catch (_) { /* private mode */ } } };
 let toastT = 0;
@@ -536,14 +537,33 @@ if (new URLSearchParams(location.search).has('shots')) $$('.rv').forEach((el) =>
 // ------------------------------------------------------------------ CA pill + footer links
 function caState() {
   $('caShort').textContent = CONFIG.CA ? short(CONFIG.CA) : 'launching soon';
-  $('caPill').onclick = () => { if (!CONFIG.CA) { toast('$DECON is launching soon. The CA posts here the moment it is live.'); return; } navigator.clipboard.writeText(CONFIG.CA).then(() => toast('CA copied.')).catch(() => toast(CONFIG.CA)); };
+  $('caPill').onclick = () => {
+    if (!CONFIG.CA) { toast('$DECON is launching soon. The CA posts here the moment it is live.'); return; }
+    if (isMint(CONFIG.CA)) { navigator.clipboard.writeText(CONFIG.CA).then(() => toast('CA copied.')).catch(() => toast(CONFIG.CA)); }
+    else { window.open('https://pump.fun', '_blank', 'noopener'); }
+  };
   const L = [];
   if (CONFIG.X) L.push(`<a href="${esc(CONFIG.X)}" target="_blank" rel="noopener"><img src="${IMG('x.png')}" alt="">X</a>`);
-  if (CONFIG.CA) L.push(`<a href="https://pump.fun/coin/${CONFIG.CA}" target="_blank" rel="noopener"><img src="${IMG('pump.png')}" alt="">pump.fun</a>`, `<a href="https://dexscreener.com/solana/${CONFIG.CA}" target="_blank" rel="noopener"><img src="${IMG('dexscreener.png')}" alt="">DexScreener</a>`);
+  if (CONFIG.CA) {
+    const pumpUrl = isMint(CONFIG.CA) ? `https://pump.fun/coin/${CONFIG.CA}` : 'https://pump.fun';
+    L.push(`<a href="${pumpUrl}" target="_blank" rel="noopener"><img src="${IMG('pump.png')}" alt="">pump.fun</a>`);
+    if (isMint(CONFIG.CA)) L.push(`<a href="https://dexscreener.com/solana/${CONFIG.CA}" target="_blank" rel="noopener"><img src="${IMG('dexscreener.png')}" alt="">DexScreener</a>`);
+  }
   L.push(`<a href="#launch">Launch a build</a>`);
   $('footLinks').innerHTML = L.join('');
-  const hc = $('heroCa'); if (hc) { hc.style.display = CONFIG.CA ? 'inline-flex' : 'none'; $('heroCaTxt').textContent = CONFIG.CA; hc.onclick = () => navigator.clipboard.writeText(CONFIG.CA).then(() => toast('CA copied.')).catch(() => toast(CONFIG.CA)); }
-  const fc = $('footCa'); if (fc) fc.innerHTML = CONFIG.CA ? `CA <code>${esc(CONFIG.CA)}</code>` : '';
+  const hc = $('heroCa');
+  if (hc) {
+    hc.style.display = CONFIG.CA ? 'inline-flex' : 'none';
+    $('heroCaTxt').textContent = CONFIG.CA;
+    const btnSpan = hc.querySelector('span');
+    if (btnSpan) btnSpan.textContent = isMint(CONFIG.CA) ? 'Copy CA' : 'Open pump.fun';
+    hc.onclick = () => {
+      if (isMint(CONFIG.CA)) { navigator.clipboard.writeText(CONFIG.CA).then(() => toast('CA copied.')).catch(() => toast(CONFIG.CA)); }
+      else { window.open('https://pump.fun', '_blank', 'noopener'); }
+    };
+  }
+  const fc = $('footCa');
+  if (fc) fc.innerHTML = CONFIG.CA ? (isMint(CONFIG.CA) ? `CA <code>${esc(CONFIG.CA)}</code>` : `<a href="https://pump.fun" target="_blank" rel="noopener" style="color:var(--pri);text-decoration:underline">${esc(CONFIG.CA)}</a>`) : '';
 }
 caState();
 
@@ -968,6 +988,10 @@ async function loadMain() {
   const box = $('mainCoin');
   const head = (live) => `<div class="top"><span class="av">${markSVG(34)}</span><div><b>$DECON</b><div style="font-size:14px;color:var(--soft)">Deconpad</div></div><span class="badge${live ? ' live' : ''}"><i></i>${live ? 'LIVE' : 'Launching'}</span></div>`;
   if (!CONFIG.CA) { box.innerHTML = head(false) + `<p style="margin-top:16px;color:var(--soft);font-size:15px">$DECON launches soon. Its contract address posts here, in the header and on X the moment it is live.</p><div class="stats"><div><b>Burn</b><span>for compute</span></div><div><b>Fees</b><span>run the agents</span></div><div><b>Sales</b><span>pay holders</span></div></div>`; return; }
+  if (!isMint(CONFIG.CA)) {
+    box.innerHTML = head(true) + `<div class="caf"><code>${esc(CONFIG.CA)}</code><a class="btn pri" href="https://pump.fun" target="_blank" rel="noopener" style="height:34px;padding:0 14px;display:inline-flex;align-items:center;border-radius:10px;text-decoration:none;font-weight:700">Open pump.fun</a></div><div class="stats"><div><b>Live</b><span>on pump.fun</span></div><div><b>Fees</b><span>run the agents</span></div><div><b>Sales</b><span>pay holders</span></div></div><div class="links"><a href="https://pump.fun" target="_blank" rel="noopener"><img src="${IMG('pump.png')}" alt="">pump.fun</a></div>`;
+    return;
+  }
   box.innerHTML = head(false) + `<div class="caf"><code>${esc(CONFIG.CA)}</code><button class="btn lite" type="button" id="cpCa" style="height:34px">Copy</button></div><div class="stats" id="mStats"><div><b>…</b><span>price</span></div><div><b>…</b><span>market cap</span></div><div><b>…</b><span>24h volume</span></div></div><div class="links"><a href="https://pump.fun/coin/${CONFIG.CA}" target="_blank" rel="noopener"><img src="${IMG('pump.png')}" alt="">Buy</a><a href="https://dexscreener.com/solana/${CONFIG.CA}" target="_blank" rel="noopener"><img src="${IMG('dexscreener.png')}" alt="">Chart</a><a href="https://solscan.io/token/${CONFIG.CA}" target="_blank" rel="noopener"><img src="${IMG('solscan.png')}" alt="">Solscan</a></div><div class="chart" id="mChart"></div>`;
   $('cpCa').onclick = () => navigator.clipboard.writeText(CONFIG.CA).then(() => toast('CA copied.'));
   const poll = async () => {
