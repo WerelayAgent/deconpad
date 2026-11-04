@@ -1,6 +1,27 @@
 # Deconpad (`$DECON`)
 
-> **Reverse-engineer anything. Deconstruct & launch on Solana.**
+> **Reverse-engineer anything. Deconstruct & launch.**
+
+<div align="center">
+  [![Contract Address](https://img.shields.io/badge/Contract-live%20now%20on%20robinhood%20chain-green?style=for-the-badge)](https://explorer.robinhood.com/)
+  [![Ticker](https://img.shields.io/badge/Ticker-%24DECON-blue?style=for-the-badge)](#)
+  [![Platform](https://img.shields.io/badge/Venue-Robinhood%20Chain-brightgreen?style=for-the-badge)](https://explorer.robinhood.com/)
+</div>
+
+---
+
+### 🪙 Token Details
+
+| Attribute | Details |
+| :--- | :--- |
+| **Token Name** | **Deconpad** |
+| **Ticker** | **$DECON** |
+| **Network** | Robinhood Chain |
+| **Contract Address (CA)** | `live now on robinhood chain` |
+| **Launch Venue** | [Robinhood Chain Explorer](https://explorer.robinhood.com/) |
+| **Official X** | [@deconpad](https://x.com/deconpad) |
+
+---
 
 Deconpad is an autonomous AI agent launchpad and product reverse-engineering platform on Solana. Send any product—from iconic sneakers and consumer hardware to digital platforms and apps—and multi-agent AI networks will dissect its constituent components, redesign it according to your vision, and deploy it as a tradeable coin on Solana.
 
